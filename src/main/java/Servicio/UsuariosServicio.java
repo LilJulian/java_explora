@@ -45,4 +45,9 @@ public class UsuariosServicio {
     public Usuarios obtenerUsuarioPorCorreo(String correo) {
         return usuarioDAO.buscarPorCorreo(correo);
     }
+    
+    public List<Usuarios> listarUsuariosPorRol(int idRol) {
+    return usuarioDAO.listarPorRol(idRol);
+}
+
 }

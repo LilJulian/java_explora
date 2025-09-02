@@ -29,55 +29,92 @@ public class UsuarioDAO {
     }
 
     // Leer todos (Listar usuarios)
-    public List<Usuarios> listar() {
-        List<Usuarios> lista = new ArrayList<>();
-        String sql = "SELECT * FROM usuarios";
-        try (Connection conn = Conexion.getConnection();
-             Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery(sql)) {
+   public List<Usuarios> listar() {
+    List<Usuarios> lista = new ArrayList<>();
+    String sql = "SELECT u.id, u.nombre, u.correo, u.telefono, u.contrasena, r.nombre AS rol " +
+                 "FROM usuarios u " +
+                 "JOIN roles r ON u.id_rol = r.id";
 
-            while (rs.next()) {
-                Usuarios u = new Usuarios();
-                u.setId(rs.getInt("id"));
-                u.setNombre(rs.getString("nombre"));
-                u.setCorreo(rs.getString("correo"));
-                u.setTelefono(rs.getString("telefono"));
-                u.setContrasena(rs.getString("contrasena"));
-                u.setRol(rs.getInt("id_rol"));
-                lista.add(u);
-            }
+    try (Connection conn = Conexion.getConnection();
+         Statement stmt = conn.createStatement();
+         ResultSet rs = stmt.executeQuery(sql)) {
 
-        } catch (Exception e) {
-            e.printStackTrace();
+        while (rs.next()) {
+            Usuarios u = new Usuarios();
+            u.setId(rs.getInt("id"));
+            u.setNombre(rs.getString("nombre"));
+            u.setCorreo(rs.getString("correo"));
+            u.setTelefono(rs.getString("telefono"));
+            u.setContrasena(rs.getString("contrasena"));
+            u.setRolNombre(rs.getString("rol")); // <-- Nuevo campo en Usuarios para el nombre del rol
+            lista.add(u);
         }
-        return lista;
+
+    } catch (Exception e) {
+        e.printStackTrace();
     }
+    return lista;
+}
+
+    
+    // Listar usuarios por rol
+public List<Usuarios> listarPorRol(int idRol) {
+    List<Usuarios> lista = new ArrayList<>();
+    String sql = "SELECT * FROM usuarios WHERE id_rol = ?";
+    try (Connection conn = Conexion.getConnection();
+         PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+        stmt.setInt(1, idRol);
+        ResultSet rs = stmt.executeQuery();
+
+        while (rs.next()) {
+            Usuarios u = new Usuarios();
+            u.setId(rs.getInt("id"));
+            u.setNombre(rs.getString("nombre"));
+            u.setCorreo(rs.getString("correo"));
+            u.setTelefono(rs.getString("telefono"));
+            u.setContrasena(rs.getString("contrasena"));
+            u.setRol(rs.getInt("id_rol"));
+            lista.add(u);
+        }
+
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+    return lista;
+}
+
 
     // Leer uno (Buscar por ID)
-    public Usuarios buscarPorId(int id) {
-        Usuarios usuario = null;
-        String sql = "SELECT * FROM usuarios WHERE id = ?";
-        try (Connection conn = Conexion.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+   public Usuarios buscarPorId(int id) {
+    Usuarios usuario = null;
+    String sql = "SELECT u.id, u.nombre, u.correo, u.telefono, u.contrasena, r.nombre AS rol " +
+                 "FROM usuarios u " +
+                 "JOIN roles r ON u.id_rol = r.id " +
+                 "WHERE u.id = ?";
 
-            stmt.setInt(1, id);
-            ResultSet rs = stmt.executeQuery();
+    try (Connection conn = Conexion.getConnection();
+         PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-            if (rs.next()) {
-                usuario = new Usuarios();
-                usuario.setId(rs.getInt("id"));
-                usuario.setNombre(rs.getString("nombre"));
-                usuario.setCorreo(rs.getString("correo"));
-                usuario.setTelefono(rs.getString("telefono"));
-                usuario.setContrasena(rs.getString("contrasena"));
-                usuario.setRol(rs.getInt("id_rol"));
-            }
+        stmt.setInt(1, id);
+        ResultSet rs = stmt.executeQuery();
 
-        } catch (Exception e) {
-            e.printStackTrace();
+        if (rs.next()) {
+            usuario = new Usuarios();
+            usuario.setId(rs.getInt("id"));
+            usuario.setNombre(rs.getString("nombre"));
+            usuario.setCorreo(rs.getString("correo"));
+            usuario.setTelefono(rs.getString("telefono"));
+            usuario.setContrasena(rs.getString("contrasena"));
+            usuario.setRolNombre(rs.getString("rol")); // <-- Nuevo campo en Usuarios
         }
-        return usuario;
+
+    } catch (Exception e) {
+        e.printStackTrace();
     }
+    return usuario;
+}
+
 
     // Actualizar
     public boolean actualizar(Usuarios usuario) {

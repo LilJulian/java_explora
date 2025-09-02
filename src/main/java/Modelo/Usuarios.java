@@ -7,10 +7,19 @@ public class Usuarios {
     private String telefono;
     private String contrasena;
     private int id_rol;
+    private String rolNombre;
 
     // Getters y Setters
     public int getId() {
         return id;
+    }
+
+    public String getRolNombre() {
+        return rolNombre;
+    }
+
+    public void setRolNombre(String rolNombre) {
+        this.rolNombre = rolNombre;
     }
     public void setId(int id) {
         this.id = id;

@@ -16,7 +16,6 @@ public class UsuarioControlador {
     // Método para agregar CORS en todas las respuestas
     private Response.ResponseBuilder addCorsHeaders(Response.ResponseBuilder response) {
         return response
-                .header("Access-Control-Allow-Origin", "*")
                 .header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
                 .header("Access-Control-Allow-Headers", "Content-Type, Authorization")
                 .header("Access-Control-Allow-Credentials", "true");
@@ -110,6 +109,15 @@ public class UsuarioControlador {
                     .type(MediaType.APPLICATION_JSON)).build();
         }
     }
+    
+    @GET
+@Path("/rol/{id_rol}")
+@Produces(MediaType.APPLICATION_JSON)
+public Response obtenerUsuariosPorRol(@PathParam("id_rol") int idRol) {
+    List<Usuarios> lista = usuariosServicio.listarUsuariosPorRol(idRol);
+    return addCorsHeaders(Response.ok(lista)).build();
+}
+
 
     // Preflight CORS
     @OPTIONS
