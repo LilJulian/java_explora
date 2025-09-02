@@ -23,9 +23,13 @@ public class AuthServicio {
 
     // Verificar contraseña con BCrypt
     if (!BCrypt.checkpw(contrasena, u.getContrasena())) return null;
+    System.out.println("ID usuario: " + u.getId());
+
+
 
     // Obtener permisos del usuario
     List<String> permisos = usuarioDAO.obtenerPermisosPorUsuario(u.getId());
+    System.out.println("Permisos obtenidos: " + permisos);
 
     // Generar ambos tokens (access incluye permisos)
     String accessToken = JwtUtil.generarAccessToken(u, permisos);   // válido 2h

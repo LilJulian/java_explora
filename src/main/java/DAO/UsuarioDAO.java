@@ -27,6 +27,7 @@ public class UsuarioDAO {
         }
         return false;
     }
+    
 
     // Leer todos (Listar usuarios)
    public List<Usuarios> listar() {
@@ -229,5 +230,7 @@ public List<Usuarios> listarPorRol(int idRol) {
         }
         return permisos;
     }
+    
+    
 
 }
