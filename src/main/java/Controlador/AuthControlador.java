@@ -12,6 +12,9 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import com.google.gson.Gson;
+import java.util.HashMap;
+import java.util.Map;
 
 //  Endpoint de autenticación
 @WebServlet("/api/auth/*")
@@ -186,10 +189,7 @@ public class AuthControlador extends HttpServlet {
     }
 
     // 🔑 devolver información del usuario autenticado
-    private void me(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-    resp.setContentType("application/json");
-    resp.setCharacterEncoding("UTF-8");
-
+   private void me(HttpServletRequest req, HttpServletResponse resp) throws IOException {
     String authHeader = req.getHeader("Authorization");
     if (authHeader == null || !authHeader.startsWith("Bearer ")) {
         resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
@@ -207,18 +207,16 @@ public class AuthControlador extends HttpServlet {
     }
 
     try {
-        Claims claims = authServicio.validarAccessToken(token);
-        
-           List<String> permisos = JwtUtil.obtenerPermisos(token);
+        List<String> permisos = JwtUtil.obtenerPermisos(token);
 
-        // Construimos el JSON manualmente
-        String json = "{"
-                + "\"id\":" + usuario.getId() + ","
-                + "\"nombre\":\"" + usuario.getNombre() + "\","
-                + "\"correo\":\"" + usuario.getCorreo() + "\","
-                + "\"rol\":" + usuario.getRol() + ","
-                + "\"permisos\":" + permisos
-                + "}";
+        Map<String, Object> data = new HashMap<>();
+        data.put("id", usuario.getId());
+        data.put("nombre", usuario.getNombre());
+        data.put("correo", usuario.getCorreo());
+        data.put("rol", usuario.getRol());
+        data.put("permisos", permisos);
+
+        String json = new Gson().toJson(data);
 
         resp.setStatus(HttpServletResponse.SC_OK);
         resp.getWriter().write(json);
