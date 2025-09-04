@@ -33,8 +33,10 @@ public class UsuarioDAO {
    public List<Usuarios> listar() {
     List<Usuarios> lista = new ArrayList<>();
     String sql = "SELECT u.id, u.nombre, u.correo, u.telefono, u.contrasena, r.nombre AS rol " +
-                 "FROM usuarios u " +
-                 "JOIN roles r ON u.id_rol = r.id";
+"FROM usuarios u " +
+"JOIN roles r ON u.id_rol = r.id " +
+"ORDER BY u.id ASC"
+;
 
     try (Connection conn = Conexion.getConnection();
          Statement stmt = conn.createStatement();
@@ -84,6 +86,33 @@ public List<Usuarios> listarPorRol(int idRol) {
     }
     return lista;
 }
+public Usuarios obtenerUsuarioPorId(int id) {
+    Usuarios usuario = null;
+    String sql = "SELECT id, nombre, correo, telefono, contrasena, id_rol " +
+                 "FROM usuarios WHERE id = ?";
+
+    try (Connection conn = Conexion.getConnection();
+         PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+        stmt.setInt(1, id);
+        ResultSet rs = stmt.executeQuery();
+
+        if (rs.next()) {
+            usuario = new Usuarios();
+            usuario.setId(rs.getInt("id"));
+            usuario.setNombre(rs.getString("nombre"));
+            usuario.setCorreo(rs.getString("correo"));
+            usuario.setTelefono(rs.getString("telefono"));
+            usuario.setContrasena(rs.getString("contrasena"));
+            usuario.setRol(rs.getInt("id_rol")); // 👈 Aquí ya te queda el rol como id, no como texto
+        }
+
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+    return usuario;
+}
+
 
 
     // Leer uno (Buscar por ID)
@@ -117,26 +146,36 @@ public List<Usuarios> listarPorRol(int idRol) {
 }
 
 
-    // Actualizar
-    public boolean actualizar(Usuarios usuario) {
-        String sql = "UPDATE usuarios SET nombre=?, correo=?, telefono=?, contrasena=?, id_rol=? WHERE id=?";
-        try (Connection conn = Conexion.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-            stmt.setString(1, usuario.getNombre());
-            stmt.setString(2, usuario.getCorreo());
-            stmt.setString(3, usuario.getTelefono());
-            stmt.setString(4, usuario.getContrasena());
-            stmt.setInt(5, usuario.getRol());
-            stmt.setInt(6, usuario.getId());
+   // Actualizar usuario
+public int actualizar(Usuarios usuario) {
+    String sql = "UPDATE usuarios SET nombre=?, correo=?, telefono=?, contrasena=?, id_rol=? WHERE id=?";
 
-            return stmt.executeUpdate() > 0;
+    try (Connection conn = Conexion.getConnection();
+         PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-        } catch (Exception e) {
-            e.printStackTrace();
+        stmt.setString(1, usuario.getNombre());
+        stmt.setString(2, usuario.getCorreo());
+        stmt.setString(3, usuario.getTelefono());
+        stmt.setString(4, usuario.getContrasena());
+        stmt.setInt(5, usuario.getRol());
+        stmt.setInt(6, usuario.getId());
+
+        int filas = stmt.executeUpdate();
+
+        if (filas > 0) {
+            return 1; // ✅ Se actualizó correctamente
+        } else {
+            return 0; // ⚠️ No se encontró el usuario o no hubo cambios
         }
-        return false;
+
+    } catch (Exception e) {
+        e.printStackTrace();
+        return -2; // ❌ Error en la operación
     }
+}
+
+
 
     // Eliminar
     public boolean eliminar(int id) {

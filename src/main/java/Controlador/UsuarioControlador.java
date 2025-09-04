@@ -61,23 +61,7 @@ public class UsuarioControlador {
         }
     }
 
-    // Actualizar un usuario
-    @PUT
-    @Path("/{id}")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response actualizarUsuario(@PathParam("id") int id, Usuarios usuario) {
-        usuario.setId(id);
-        boolean actualizado = usuariosServicio.actualizarUsuario(usuario);
-        if (actualizado) {
-            return addCorsHeaders(Response.ok("{\"mensaje\":\"Usuario actualizado\"}")
-                    .type(MediaType.APPLICATION_JSON)).build();
-        } else {
-            return addCorsHeaders(Response.status(Response.Status.NOT_FOUND)
-                    .entity("{\"error\":\"No se pudo actualizar el usuario\"}")
-                    .type(MediaType.APPLICATION_JSON)).build();
-        }
-    }
+
 
     // Eliminar un usuario
     @DELETE

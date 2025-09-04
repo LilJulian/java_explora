@@ -29,12 +29,7 @@ public class UsuariosServicio {
     // Obtener usuario por ID
     public Usuarios obtenerUsuarioPorId(int id) {
         return usuarioDAO.buscarPorId(id);
-    }
-
-    // Actualizar usuario
-    public boolean actualizarUsuario(Usuarios usuario) {
-        return usuarioDAO.actualizar(usuario);
-    }
+    }   
 
     // Eliminar usuario
     public boolean eliminarUsuario(int id) {

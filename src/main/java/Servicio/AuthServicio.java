@@ -70,6 +70,44 @@ public class AuthServicio {
         usuario.setContrasena(hashed);
         return usuarioDAO.insertar(usuario);
     }
+    
+public int actualizarUsuario(Usuarios usuario) {
+    // 1️⃣ Buscar el usuario actual en BD
+    Usuarios actual = usuarioDAO.obtenerUsuarioPorId(usuario.getId());
+    if (actual == null) {
+        return -1; // Usuario no existe
+    }
+
+    // 2️⃣ Si no enviaron un campo, mantenemos el valor actual
+    if (usuario.getNombre() == null || usuario.getNombre().isEmpty()) {
+        usuario.setNombre(actual.getNombre());
+    }
+    if (usuario.getCorreo() == null || usuario.getCorreo().isEmpty()) {
+        usuario.setCorreo(actual.getCorreo());
+    }
+    if (usuario.getTelefono() == null || usuario.getTelefono().isEmpty()) {
+        usuario.setTelefono(actual.getTelefono());
+    }
+    if (usuario.getRol() == 0) { // si no viene rol
+        usuario.setRol(actual.getRol());
+    }
+
+    // 3️⃣ Contraseña: si no mandan nueva, dejamos la actual
+    if (usuario.getContrasena() == null || usuario.getContrasena().isEmpty()) {
+        usuario.setContrasena(actual.getContrasena());
+    } else {
+        // Si viene una nueva, la encriptamos
+        String hashed = BCrypt.hashpw(usuario.getContrasena(), BCrypt.gensalt(12));
+        usuario.setContrasena(hashed);
+    }
+
+    // 4️⃣ Llamamos al DAO
+    return usuarioDAO.actualizar(usuario);
+}
+
+
+
+
 
     /**
      * ✅ Valida un Access Token y devuelve los claims.
