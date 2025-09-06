@@ -210,12 +210,12 @@ protected void doPut(HttpServletRequest req, HttpServletResponse resp)
         String contrasena = req.getParameter("contrasena");
 
         String rolParam = req.getParameter("id_rol");
-        int rol = 2;
+        int rol = 3;
         if (rolParam != null && !rolParam.isEmpty()) {
             try {
                 rol = Integer.parseInt(rolParam);
             } catch (NumberFormatException e) {
-                // ignoramos y dejamos 2
+                // ignoramos y dejamos 3
             }
         }
 
