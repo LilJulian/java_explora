@@ -44,11 +44,35 @@ public class CiudadControlador {
         }
     }
 
-    // Insertar nueva ciudad
+    // Insertar nueva ciudad con JSON
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response insertar(Ciudad ciudad) {
+    public Response insertarJson(Ciudad ciudad) {
+        boolean creado = ciudadDAO.insertar(ciudad);
+        if (creado) {
+            return addCorsHeaders(Response.status(Response.Status.CREATED)
+                    .entity("{\"mensaje\":\"Ciudad creada exitosamente\"}")
+                    .type(MediaType.APPLICATION_JSON)).build();
+        } else {
+            return addCorsHeaders(Response.status(Response.Status.BAD_REQUEST)
+                    .entity("{\"error\":\"No se pudo crear la ciudad\"}")
+                    .type(MediaType.APPLICATION_JSON)).build();
+        }
+    }
+
+    // Insertar nueva ciudad con x-www-form-urlencoded
+    @POST
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response insertarForm(
+            @FormParam("nombre") String nombre,
+            @FormParam("id_pais") int idPais
+    ) {
+        Ciudad ciudad = new Ciudad();
+        ciudad.setNombre(nombre);
+        ciudad.setId_pais(idPais);
+
         boolean creado = ciudadDAO.insertar(ciudad);
         if (creado) {
             return addCorsHeaders(Response.status(Response.Status.CREATED)

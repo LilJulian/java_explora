@@ -24,26 +24,33 @@ public class CiudadDAO {
     }
 
     // Leer todos
-    public List<Ciudad> listar() {
-        List<Ciudad> lista = new ArrayList<>();
-        String sql = "SELECT * FROM ciudades";
-        try (Connection conn = Conexion.getConnection();
-             Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery(sql)) {
-            
-            while (rs.next()) {
-                Ciudad ciudad = new Ciudad(
-                    rs.getInt("id"),
-                    rs.getString("nombre"),
-                    rs.getInt("id_pais")
-                );
-                lista.add(ciudad);
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
+public List<Ciudad> listar() {
+    List<Ciudad> lista = new ArrayList<>();
+    String sql = "SELECT c.id, c.nombre, c.id_pais, p.nombre AS paisNombre " +
+                 "FROM ciudades c " +
+                 "INNER JOIN paises p ON c.id_pais = p.id " +
+                 "ORDER BY c.id ASC";
+
+    try (Connection conn = Conexion.getConnection();
+         Statement stmt = conn.createStatement();
+         ResultSet rs = stmt.executeQuery(sql)) {
+        
+        while (rs.next()) {
+            Ciudad ciudad = new Ciudad(
+                rs.getInt("id"),
+                rs.getString("nombre"),
+                rs.getInt("id_pais")
+            );
+            // 👉 aquí puedes agregar el nombre del país
+            ciudad.setPaisNombre(rs.getString("paisNombre")); 
+            lista.add(ciudad);
         }
-        return lista;
+    } catch (SQLException e) {
+        e.printStackTrace();
     }
+    return lista;
+}
+
 
     // Buscar por id
     public Ciudad buscarPorId(int id) {

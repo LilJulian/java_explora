@@ -44,11 +44,31 @@ public class PaisControlador {
         }
     }
 
-    // Insertar nuevo país
+    // Insertar nuevo país con JSON
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response insertar(Pais pais) {
+    public Response insertarJson(Pais pais) {
+        boolean creado = paisDAO.insertar(pais);
+        if (creado) {
+            return addCorsHeaders(Response.status(Response.Status.CREATED)
+                    .entity("{\"mensaje\":\"País creado exitosamente\"}")
+                    .type(MediaType.APPLICATION_JSON)).build();
+        } else {
+            return addCorsHeaders(Response.status(Response.Status.BAD_REQUEST)
+                    .entity("{\"error\":\"No se pudo crear el país\"}")
+                    .type(MediaType.APPLICATION_JSON)).build();
+        }
+    }
+
+    // Insertar nuevo país con x-www-form-urlencoded
+    @POST
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response insertarForm(@FormParam("nombre") String nombre) {
+        Pais pais = new Pais();
+        pais.setNombre(nombre);
+
         boolean creado = paisDAO.insertar(pais);
         if (creado) {
             return addCorsHeaders(Response.status(Response.Status.CREATED)

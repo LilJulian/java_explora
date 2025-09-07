@@ -70,77 +70,72 @@ public class AuthControlador extends HttpServlet {
     }
 
     // 🔹 PUT: actualizar usuario
-@Override
-protected void doPut(HttpServletRequest req, HttpServletResponse resp)
-        throws ServletException, IOException {
+    @Override
+    protected void doPut(HttpServletRequest req, HttpServletResponse resp)
+            throws ServletException, IOException {
 
-    addCorsHeaders(resp);
-    resp.setContentType("application/json");
-    resp.setCharacterEncoding("UTF-8");
+        addCorsHeaders(resp);
+        resp.setContentType("application/json");
+        resp.setCharacterEncoding("UTF-8");
 
-    try {
-        // Extraer el ID desde la URL: /api/auth/update/{id}
-        String path = req.getPathInfo();
-        if (path == null || path.split("/").length < 3) {
+        try {
+            // Extraer el ID desde la URL: /api/auth/update/{id}
+            String path = req.getPathInfo();
+            if (path == null || path.split("/").length < 3) {
+                resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                resp.getWriter().write("{\"error\":\"Debe proporcionar un ID en la URL\"}");
+                return;
+            }
+
+            String[] parts = path.split("/");
+            int id = Integer.parseInt(parts[2]);
+
+            // 🔹 Leer JSON del body y convertirlo a objeto Usuarios
+            ObjectMapper mapper = new ObjectMapper();
+            Usuarios usuario = mapper.readValue(req.getInputStream(), Usuarios.class);
+
+            // Forzamos el ID desde la URL
+            usuario.setId(id);
+
+            System.out.println("➡️ Datos recibidos en update:");
+            System.out.println("ID: " + usuario.getId());
+            System.out.println("Nombre: " + usuario.getNombre());
+            System.out.println("Correo: " + usuario.getCorreo());
+            System.out.println("Teléfono: " + usuario.getTelefono());
+            System.out.println("Contraseña: " + usuario.getContrasena());
+            System.out.println("Rol: " + usuario.getRol());
+
+            // Llamar al servicio
+            int resultado = authServicio.actualizarUsuario(usuario);
+
+            switch (resultado) {
+                case 1:
+                    resp.setStatus(HttpServletResponse.SC_OK);
+                    resp.getWriter().write("{\"message\":\"Usuario actualizado con éxito\"}");
+                    break;
+                case 0:
+                    resp.setStatus(HttpServletResponse.SC_OK);
+                    resp.getWriter().write("{\"message\":\"No hubo cambios en el usuario\"}");
+                    break;
+                case -1:
+                    resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
+                    resp.getWriter().write("{\"error\":\"No se encontró el usuario con ID " + id + "\"}");
+                    break;
+                default:
+                    resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+                    resp.getWriter().write("{\"error\":\"Error al actualizar el usuario\"}");
+                    break;
+            }
+
+        } catch (NumberFormatException e) {
             resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            resp.getWriter().write("{\"error\":\"Debe proporcionar un ID en la URL\"}");
-            return;
+            resp.getWriter().write("{\"error\":\"El ID debe ser un número válido\"}");
+        } catch (Exception e) {
+            e.printStackTrace();
+            resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            resp.getWriter().write("{\"error\":\"Error inesperado en el servidor\"}");
         }
-
-        String[] parts = path.split("/");
-        int id = Integer.parseInt(parts[2]);
-
-        // 🔹 Leer JSON del body y convertirlo a objeto Usuarios
-        ObjectMapper mapper = new ObjectMapper();
-        Usuarios usuario = mapper.readValue(req.getInputStream(), Usuarios.class);
-
-        // Forzamos el ID desde la URL
-        usuario.setId(id);
-
-        System.out.println("➡️ Datos recibidos en update:");
-        System.out.println("ID: " + usuario.getId());
-        System.out.println("Nombre: " + usuario.getNombre());
-        System.out.println("Correo: " + usuario.getCorreo());
-        System.out.println("Teléfono: " + usuario.getTelefono());
-        System.out.println("Contraseña: " + usuario.getContrasena());
-        System.out.println("Rol: " + usuario.getRol());
-
-        // Llamar al servicio
-        int resultado = authServicio.actualizarUsuario(usuario);
-
-        switch (resultado) {
-            case 1:
-                resp.setStatus(HttpServletResponse.SC_OK);
-                resp.getWriter().write("{\"message\":\"Usuario actualizado con éxito\"}");
-                break;
-            case 0:
-                resp.setStatus(HttpServletResponse.SC_OK);
-                resp.getWriter().write("{\"message\":\"No hubo cambios en el usuario\"}");
-                break;
-            case -1:
-                resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
-                resp.getWriter().write("{\"error\":\"No se encontró el usuario con ID " + id + "\"}");
-                break;
-            default:
-                resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-                resp.getWriter().write("{\"error\":\"Error al actualizar el usuario\"}");
-                break;
-        }
-
-    } catch (NumberFormatException e) {
-        resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-        resp.getWriter().write("{\"error\":\"El ID debe ser un número válido\"}");
-    } catch (Exception e) {
-        e.printStackTrace();
-        resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-        resp.getWriter().write("{\"error\":\"Error inesperado en el servidor\"}");
     }
-}
-
-
-
-
-
 
     // 🔹 GET: validate, me
     @Override
@@ -175,8 +170,11 @@ protected void doPut(HttpServletRequest req, HttpServletResponse resp)
     // ---------------- MÉTODOS ----------------
 
     private void login(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        String correo = req.getParameter("correo");
-        String contrasena = req.getParameter("contrasena");
+        ObjectMapper mapper = new ObjectMapper();
+        Map<String, String> body = mapper.readValue(req.getInputStream(), Map.class);
+
+        String correo = body.get("correo");
+        String contrasena = body.get("contrasena");
 
         Map<String, Object> tokens = authServicio.login(correo, contrasena);
 
@@ -191,7 +189,10 @@ protected void doPut(HttpServletRequest req, HttpServletResponse resp)
     }
 
     private void refresh(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        String refreshToken = req.getParameter("refresh_token");
+        ObjectMapper mapper = new ObjectMapper();
+        Map<String, String> body = mapper.readValue(req.getInputStream(), Map.class);
+
+        String refreshToken = body.get("refresh_token");
 
         String newAccessToken = authServicio.refresh(refreshToken);
 
@@ -204,27 +205,13 @@ protected void doPut(HttpServletRequest req, HttpServletResponse resp)
     }
 
     private void register(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        String nombre = req.getParameter("nombre");
-        String correo = req.getParameter("correo");
-        String telefono = req.getParameter("telefono");
-        String contrasena = req.getParameter("contrasena");
+        ObjectMapper mapper = new ObjectMapper();
+        Usuarios nuevoUsuario = mapper.readValue(req.getInputStream(), Usuarios.class);
 
-        String rolParam = req.getParameter("id_rol");
-        int rol = 3;
-        if (rolParam != null && !rolParam.isEmpty()) {
-            try {
-                rol = Integer.parseInt(rolParam);
-            } catch (NumberFormatException e) {
-                // ignoramos y dejamos 3
-            }
+        // Rol por defecto = 3 si no viene en el JSON
+        if (nuevoUsuario.getRol() == 0) {
+            nuevoUsuario.setRol(3);
         }
-
-        Usuarios nuevoUsuario = new Usuarios();
-        nuevoUsuario.setNombre(nombre);
-        nuevoUsuario.setCorreo(correo);
-        nuevoUsuario.setTelefono(telefono);
-        nuevoUsuario.setContrasena(contrasena);
-        nuevoUsuario.setRol(rol);
 
         boolean creado = authServicio.registrarUsuario(nuevoUsuario);
 
