@@ -4,7 +4,7 @@ import Modelo.Usuarios;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
-import Modelo.DAO.Conexion;
+import DAO.Conexion;
 
 public class UsuarioDAO {
 

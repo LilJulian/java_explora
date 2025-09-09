@@ -1,4 +1,4 @@
-package Modelo.DAO;
+package DAO;
 
 import Modelo.Adicional;
 import java.sql.*;

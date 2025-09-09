@@ -1,4 +1,4 @@
-package Modelo.DAO;
+package DAO;
 
 import Modelo.Boleto;
 import java.sql.*;

@@ -1,64 +1,42 @@
 package Modelo;
 
-/**
- * Representa un medio de transporte utilizado en el sistema.
- * Contiene información sobre su nombre, matrícula, cantidad de asientos, descripción,
- * estado y el tipo de transporte asociado.
- */
+// ================== Clase Transporte ==================
 public class Transporte {
-    
-    /** Identificador único del transporte */
-    private int id_transporte;
-
-    /** Nombre del transporte (por ejemplo: "Bus Intermunicipal 101") */
+    private int id;
     private String nombre;
-
-    /** Matrícula o placa del transporte */
     private String matricula;
-
-    /** Número total de asientos disponibles en el transporte */
     private int asientos_totales;
-
-    /** Descripción general del transporte */
     private String descripcion;
+    private int id_estado;
+    private int id_tipo_transporte;
 
-    /** Estado del transporte (1 = activo, 0 = inactivo) */
-    private int estado;
+    // Campos de solo lectura (JOIN)
+    private String estadoNombre;
+    private String tipoTransporteNombre;
 
-    /** ID del tipo de transporte (relación con la tabla tipo_transportes) */
-    private int id_tipoTransporte;
-
-    /** Constructor vacío requerido para frameworks y deserialización */
+    // Constructor vacío
     public Transporte() {
     }
 
-    /**
-     * Constructor con todos los parámetros.
-     *
-     * @param id_transporte ID del transporte
-     * @param nombre Nombre del transporte
-     * @param matricula Matrícula o placa del transporte
-     * @param asientos_totales Total de asientos
-     * @param descripcion Descripción general
-     * @param estado Estado (activo/inactivo)
-     * @param id_tipoTransporte ID del tipo de transporte
-     */
-    public Transporte(int id_transporte, String nombre, String matricula, int asientos_totales, String descripcion, int estado, int id_tipoTransporte) {
-        this.id_transporte = id_transporte;
+    // Constructor con parámetros principales
+    public Transporte(int id, String nombre, String matricula, int asientos_totales, String descripcion,
+                      int id_estado, int id_tipo_transporte) {
+        this.id = id;
         this.nombre = nombre;
         this.matricula = matricula;
         this.asientos_totales = asientos_totales;
         this.descripcion = descripcion;
-        this.estado = estado;
-        this.id_tipoTransporte = id_tipoTransporte;
+        this.id_estado = id_estado;
+        this.id_tipo_transporte = id_tipo_transporte;
     }
 
-    public int getId_transporte() {
-        return id_transporte;
+    // ================== Getters & Setters ==================
+    public int getId() {
+        return id;
     }
 
-    public void setId_transporte(int id_transporte) {
-        this.id_transporte = id_transporte;
+    public void setId(int id) {
+        this.id = id;
     }
 
     public String getNombre() {
@@ -93,19 +71,35 @@ public class Transporte {
         this.descripcion = descripcion;
     }
 
-    public int getEstado() {
-        return estado;
+    public int getId_estado() {
+        return id_estado;
     }
 
-    public void setEstado(int estado) {
-        this.estado = estado;
+    public void setId_estado(int id_estado) {
+        this.id_estado = id_estado;
     }
 
-    public int getId_tipoTransporte() {
-        return id_tipoTransporte;
+    public int getId_tipo_transporte() {
+        return id_tipo_transporte;
     }
 
-    public void setId_tipoTransporte(int id_tipoTransporte) {
-        this.id_tipoTransporte = id_tipoTransporte;
+    public void setId_tipo_transporte(int id_tipo_transporte) {
+        this.id_tipo_transporte = id_tipo_transporte;
+    }
+
+    public String getEstadoNombre() {
+        return estadoNombre;
+    }
+
+    public void setEstadoNombre(String estadoNombre) {
+        this.estadoNombre = estadoNombre;
+    }
+
+    public String getTipoTransporteNombre() {
+        return tipoTransporteNombre;
+    }
+
+    public void setTipoTransporteNombre(String tipoTransporteNombre) {
+        this.tipoTransporteNombre = tipoTransporteNombre;
     }
 }

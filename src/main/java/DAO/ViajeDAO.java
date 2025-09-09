@@ -1,6 +1,6 @@
-package Modelo.DAO;
+package DAO;
 
-import Modelo.DAO.Conexion;
+import DAO.Conexion;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
