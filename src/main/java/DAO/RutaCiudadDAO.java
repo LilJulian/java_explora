@@ -29,10 +29,12 @@ public boolean insertarRuta(RutaCiudad ruta) {
 public List<RutaCiudad> listarRutas() {
     List<RutaCiudad> rutas = new ArrayList<>();
     String sql = "SELECT r.id, " +
+                 "r.id_ciudad_origen, " +   // 👈 agregamos los IDs
+                 "r.id_ciudad_destino, " +
                  "c1.nombre AS ciudad_origen, " +
                  "c2.nombre AS ciudad_destino " +
                  "FROM ruta_ciudad r " +
-                 "INNER JOIN ciudades c1 ON r.id_ciudad_origen = c1.id " + // ✅ corregido
+                 "INNER JOIN ciudades c1 ON r.id_ciudad_origen = c1.id " +
                  "INNER JOIN ciudades c2 ON r.id_ciudad_destino = c2.id " +
                  "ORDER BY r.id ASC";
 
@@ -43,6 +45,8 @@ public List<RutaCiudad> listarRutas() {
         while (rs.next()) {
             RutaCiudad ruta = new RutaCiudad();
             ruta.setId(rs.getInt("id"));
+            ruta.setId_ciudad_origen(rs.getInt("id_ciudad_origen"));   // 👈 ya no 0
+            ruta.setId_ciudad_destino(rs.getInt("id_ciudad_destino")); // 👈 ya no 0
             ruta.setCiudad_origen(rs.getString("ciudad_origen"));
             ruta.setCiudad_destino(rs.getString("ciudad_destino"));
             rutas.add(ruta);
@@ -53,5 +57,6 @@ public List<RutaCiudad> listarRutas() {
     }
     return rutas;
 }
+
 
 }
