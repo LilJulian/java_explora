@@ -154,24 +154,27 @@ public class ViajeDAO {
     }
 
     // --- REDUCIR ASIENTOS
-    public boolean reducirAsientos(int idViaje, int cantidad) {
-        String sql = "UPDATE viaje SET asientos_disponibles = asientos_disponibles - ? " +
-                     "WHERE id = ? AND asientos_disponibles >= ?";
+   public boolean reducirAsientos(int idViaje, int cantidad) {
+    String sql = "UPDATE viaje SET asientos_disponibles = asientos_disponibles - ? " +
+                 "WHERE id = ? AND asientos_disponibles >= ?";
 
-        try (Connection conn = Conexion.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+    try (Connection conn = Conexion.getConnection();
+         PreparedStatement ps = conn.prepareStatement(sql)) {
 
-            ps.setInt(1, cantidad);
-            ps.setInt(2, idViaje);
-            ps.setInt(3, cantidad);
+        ps.setInt(1, cantidad);
+        ps.setInt(2, idViaje);
+        ps.setInt(3, cantidad);
 
-            return ps.executeUpdate() > 0;
+        int filas = ps.executeUpdate();
+        System.out.println("Filas afectadas: " + filas);
+        return filas > 0;
 
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return false;
+    } catch (SQLException e) {
+        e.printStackTrace();
     }
+    return false;
+}
+
 
     // --- MAP ResultSet -> Viaje
     private Viaje mapResultSetToViaje(ResultSet rs) throws SQLException {

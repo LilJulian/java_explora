@@ -1,114 +1,61 @@
 package Modelo;
 
-import java.math.BigDecimal;
-import java.sql.Date;
-import java.sql.Timestamp;
-
 public class Reserva {
-    private int id_reserva;
-    private int id_usuario;
-    private int id_viaje;
-    private Timestamp fecha_creacion;
-    private Date fecha_ida;
-    private Date fecha_vuelta;
-    private String tipo_reserva; // "IDA" o "IDA_Y_VUELTA"
-    private int cantidad_personas;
-    private BigDecimal precio_total;
-    private String estado; // "PENDIENTE", "CONFIRMADA" o "CANCELADA"
+    private int id;
+    private int idUsuario;
+    private int idViaje;
+    private int idTipoReserva;
+    private String tipoReservaNombre;   // JOIN
+    private String fechaReserva;
+    private int cantidadPersonas;
+    private double precioTotal;
+    private int idEstado;
+    private String estadoNombre;        // JOIN
 
-    public Reserva() {
-    }
+    private String usuarioNombre;       // opcional, si quieres mostrar nombre del cliente
+    private String ciudadOrigen;        // opcional, para mostrar detalles del viaje
+    private String ciudadDestino;       // opcional
 
-    public Reserva(int id_reserva, int id_usuario, int id_viaje, Timestamp fecha_creacion, Date fecha_ida, Date fecha_vuelta, String tipo_reserva, int cantidad_personas, BigDecimal precio_total, String estado) {
-        this.id_reserva = id_reserva;
-        this.id_usuario = id_usuario;
-        this.id_viaje = id_viaje;
-        this.fecha_creacion = fecha_creacion;
-        this.fecha_ida = fecha_ida;
-        this.fecha_vuelta = fecha_vuelta;
-        this.tipo_reserva = tipo_reserva;
-        this.cantidad_personas = cantidad_personas;
-        this.precio_total = precio_total;
-        this.estado = estado;
-    }
+    // ====== Constructores ======
+    public Reserva() {}
 
-    public int getId_reserva() {
-        return id_reserva;
-    }
+    // ====== Getters y Setters ======
+    public int getId() { return id; }
+    public void setId(int id) { this.id = id; }
 
-    public void setId_reserva(int id_reserva) {
-        this.id_reserva = id_reserva;
-    }
+    public int getIdUsuario() { return idUsuario; }
+    public void setIdUsuario(int idUsuario) { this.idUsuario = idUsuario; }
 
-    public int getId_usuario() {
-        return id_usuario;
-    }
+    public int getIdViaje() { return idViaje; }
+    public void setIdViaje(int idViaje) { this.idViaje = idViaje; }
 
-    public void setId_usuario(int id_usuario) {
-        this.id_usuario = id_usuario;
-    }
+    public int getIdTipoReserva() { return idTipoReserva; }
+    public void setIdTipoReserva(int idTipoReserva) { this.idTipoReserva = idTipoReserva; }
 
-    public int getId_viaje() {
-        return id_viaje;
-    }
+    public String getTipoReservaNombre() { return tipoReservaNombre; }
+    public void setTipoReservaNombre(String tipoReservaNombre) { this.tipoReservaNombre = tipoReservaNombre; }
 
-    public void setId_viaje(int id_viaje) {
-        this.id_viaje = id_viaje;
-    }
+    public String getFechaReserva() { return fechaReserva; }
+    public void setFechaReserva(String fechaReserva) { this.fechaReserva = fechaReserva; }
 
-    public Timestamp getFecha_creacion() {
-        return fecha_creacion;
-    }
+    public int getCantidadPersonas() { return cantidadPersonas; }
+    public void setCantidadPersonas(int cantidadPersonas) { this.cantidadPersonas = cantidadPersonas; }
 
-    public void setFecha_creacion(Timestamp fecha_creacion) {
-        this.fecha_creacion = fecha_creacion;
-    }
+    public double getPrecioTotal() { return precioTotal; }
+    public void setPrecioTotal(double precioTotal) { this.precioTotal = precioTotal; }
 
-    public Date getFecha_ida() {
-        return fecha_ida;
-    }
+    public int getIdEstado() { return idEstado; }
+    public void setIdEstado(int idEstado) { this.idEstado = idEstado; }
 
-    public void setFecha_ida(Date fecha_ida) {
-        this.fecha_ida = fecha_ida;
-    }
+    public String getEstadoNombre() { return estadoNombre; }
+    public void setEstadoNombre(String estadoNombre) { this.estadoNombre = estadoNombre; }
 
-    public Date getFecha_vuelta() {
-        return fecha_vuelta;
-    }
+    public String getUsuarioNombre() { return usuarioNombre; }
+    public void setUsuarioNombre(String usuarioNombre) { this.usuarioNombre = usuarioNombre; }
 
-    public void setFecha_vuelta(Date fecha_vuelta) {
-        this.fecha_vuelta = fecha_vuelta;
-    }
+    public String getCiudadOrigen() { return ciudadOrigen; }
+    public void setCiudadOrigen(String ciudadOrigen) { this.ciudadOrigen = ciudadOrigen; }
 
-    public String getTipo_reserva() {
-        return tipo_reserva;
-    }
-
-    public void setTipo_reserva(String tipo_reserva) {
-        this.tipo_reserva = tipo_reserva;
-    }
-
-    public int getCantidad_personas() {
-        return cantidad_personas;
-    }
-
-    public void setCantidad_personas(int cantidad_personas) {
-        this.cantidad_personas = cantidad_personas;
-    }
-
-    public BigDecimal getPrecio_total() {
-        return precio_total;
-    }
-
-    public void setPrecio_total(BigDecimal precio_total) {
-        this.precio_total = precio_total;
-    }
-
-    public String getEstado() {
-        return estado;
-    }
-
-    public void setEstado(String estado) {
-        this.estado = estado;
-    }
+    public String getCiudadDestino() { return ciudadDestino; }
+    public void setCiudadDestino(String ciudadDestino) { this.ciudadDestino = ciudadDestino; }
 }
