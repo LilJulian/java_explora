@@ -34,6 +34,59 @@ public class ViajeDAO {
         }
         return viajes;
     }
+    
+    // --- OBTENER ASIENTOS DISPONIBLES DE UN VIAJE
+public List<Integer> obtenerAsientosDisponibles(int idViaje) {
+    List<Integer> disponibles = new ArrayList<>();
+
+    String sqlTotalAsientos = "SELECT t.asientos_totales " +
+                              "FROM viaje v " +
+                              "INNER JOIN transportes t ON v.id_transporte = t.id " +
+                              "WHERE v.id = ?";
+
+    String sqlOcupados = "SELECT t.asiento " +
+                         "FROM ticket t " +
+                         "INNER JOIN reservas r ON t.id_reserva = r.id " +
+                         "WHERE r.id_viaje = ?";
+
+    try (Connection conn = Conexion.getConnection()) {
+        int totalAsientos = 0;
+
+        // Obtener total de asientos del transporte
+        try (PreparedStatement ps = conn.prepareStatement(sqlTotalAsientos)) {
+            ps.setInt(1, idViaje);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    totalAsientos = rs.getInt("asientos_totales");
+                }
+            }
+        }
+
+        // Obtener asientos ocupados
+        List<Integer> ocupados = new ArrayList<>();
+        try (PreparedStatement ps = conn.prepareStatement(sqlOcupados)) {
+            ps.setInt(1, idViaje);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    ocupados.add(rs.getInt("asiento"));
+                }
+            }
+        }
+
+        // Calcular asientos disponibles
+        for (int i = 1; i <= totalAsientos; i++) {
+            if (!ocupados.contains(i)) {
+                disponibles.add(i);
+            }
+        }
+
+    } catch (SQLException e) {
+        e.printStackTrace();
+    }
+
+    return disponibles;
+}
+
 
     // --- OBTENER POR ID
     public Viaje obtenerPorId(int id) {

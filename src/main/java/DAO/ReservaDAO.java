@@ -40,6 +40,61 @@ public class ReservaDAO {
         return reservas;
     }
 
+    // ====== LISTAR RESERVAS POR USUARIO ======
+public List<Reserva> listarReservasPorUsuario(int idUsuario) {
+    List<Reserva> reservas = new ArrayList<>();
+
+    String sql = "SELECT r.id, r.id_usuario, r.id_viaje, r.id_tipo_reserva, r.fecha_reserva, " +
+                 "r.cantidad_personas, r.precio_total, r.id_estado, " +
+                 "tr.nombre AS tipo_reserva_nombre, er.nombre AS estado_nombre, " +
+                 "u.nombre AS usuario_nombre, c1.nombre AS ciudad_origen, c2.nombre AS ciudad_destino " +
+                 "FROM reservas r " +
+                 "INNER JOIN tipo_reservas tr ON r.id_tipo_reserva = tr.id " +
+                 "INNER JOIN estado_reserva er ON r.id_estado = er.id " +
+                 "INNER JOIN usuarios u ON r.id_usuario = u.id " +
+                 "INNER JOIN viaje v ON r.id_viaje = v.id " +
+                 "INNER JOIN ruta_ciudad rc ON v.id_ciudades = rc.id " +
+                 "INNER JOIN ciudades c1 ON rc.id_ciudad_origen = c1.id " +
+                 "INNER JOIN ciudades c2 ON rc.id_ciudad_destino = c2.id " +
+                 "WHERE r.id_usuario = ? " +
+                 "ORDER BY r.id DESC";
+
+    try (Connection conn = Conexion.getConnection();
+         PreparedStatement ps = conn.prepareStatement(sql)) {
+
+        ps.setInt(1, idUsuario);
+
+        try (ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                reservas.add(mapResultSetToReserva(rs));
+            }
+        }
+
+    } catch (SQLException e) {
+        e.printStackTrace();
+    }
+
+    return reservas;
+}
+
+// Cambiar el estado de una reserva
+public boolean actualizarEstadoReserva(int idReserva, int idEstado) {
+    String sql = "UPDATE reservas SET id_estado = ? WHERE id = ?";
+    try (Connection conn = Conexion.getConnection();
+         PreparedStatement ps = conn.prepareStatement(sql)) {
+
+        ps.setInt(1, idEstado);
+        ps.setInt(2, idReserva);
+
+        return ps.executeUpdate() > 0;
+
+    } catch (SQLException e) {
+        e.printStackTrace();
+    }
+    return false;
+}
+
+
     // ====== OBTENER POR ID ======
     public Reserva obtenerPorId(int id) {
         String sql = "SELECT r.id, r.id_usuario, r.id_viaje, r.id_tipo_reserva, r.fecha_reserva, " +

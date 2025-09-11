@@ -26,6 +26,15 @@ public class TicketControlador {
         // opcional: devolver todos los tickets
         return addCorsHeaders(Response.ok().entity("{}")).build();
     }
+    
+    @GET
+@Path("/viaje/{idViaje}")
+@Produces(MediaType.APPLICATION_JSON)
+public Response listarPorViaje(@PathParam("idViaje") int idViaje) {
+    List<Ticket> lista = ticketDAO.listarPorViaje(idViaje);
+    return addCorsHeaders(Response.ok(lista)).build();
+}
+
 
     @GET
     @Path("/reserva/{idReserva}")

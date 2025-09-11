@@ -42,6 +42,30 @@ public class TicketDAO {
         }
         return null;
     }
+    
+    // listar tickets de un viaje
+public List<Ticket> listarPorViaje(int idViaje) {
+    List<Ticket> lista = new ArrayList<>();
+    String sql = "SELECT t.id, t.id_reserva, t.nombre, t.tipo_documento, t.documento, t.comentarios, t.asiento " +
+                 "FROM ticket t " +
+                 "INNER JOIN reservas r ON t.id_reserva = r.id " +
+                 "WHERE r.id_viaje = ?";
+
+    try (Connection conn = Conexion.getConnection();
+         PreparedStatement ps = conn.prepareStatement(sql)) {
+
+        ps.setInt(1, idViaje);
+        try (ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                lista.add(mapResultSetToTicket(rs));
+            }
+        }
+    } catch (SQLException e) {
+        e.printStackTrace();
+    }
+    return lista;
+}
+
 
     // crear
     public int crearTicket(Ticket t) {

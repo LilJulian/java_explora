@@ -28,6 +28,41 @@ public class ReservaControlador {
         List<Reserva> lista = reservaDAO.listarReservas();
         return addCorsHeaders(Response.ok(lista)).build();
     }
+    
+    // ====== LISTAR RESERVAS POR USUARIO ======
+@GET
+@Path("/cliente/{idUsuario}")
+@Produces(MediaType.APPLICATION_JSON)
+public Response reservaByCliente(@PathParam("idUsuario") int idUsuario) {
+    List<Reserva> lista = reservaDAO.listarReservasPorUsuario(idUsuario);
+    return addCorsHeaders(Response.ok(lista)).build();
+}
+
+@PUT
+@Path("/{id}/estado")
+@Consumes(MediaType.APPLICATION_JSON)
+@Produces(MediaType.APPLICATION_JSON)
+public Response cambiarEstado(@PathParam("id") int id, EstadoRequest body) {
+    boolean ok = reservaDAO.actualizarEstadoReserva(id, body.getIdEstado());
+    if (ok) {
+        return addCorsHeaders(Response.ok("{\"mensaje\":\"Estado actualizado\"}")
+            .type(MediaType.APPLICATION_JSON)).build();
+    } else {
+        return addCorsHeaders(Response.status(Response.Status.NOT_FOUND)
+            .entity("{\"error\":\"No se pudo actualizar el estado\"}")
+            .type(MediaType.APPLICATION_JSON)).build();
+    }
+}
+
+// Clase interna para recibir el JSON con id_estado
+public static class EstadoRequest {
+    private int id_estado;
+
+    public int getIdEstado() { return id_estado; }
+    public void setIdEstado(int id_estado) { this.id_estado = id_estado; }
+}
+
+
 
     // ===== OBTENER POR ID =====
     @GET

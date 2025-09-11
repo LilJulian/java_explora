@@ -47,6 +47,25 @@ public class ViajeControlador {
                     .type(MediaType.APPLICATION_JSON)).build();
         }
     }
+    
+    // =======================
+// Obtener asientos disponibles de un viaje
+// =======================
+@GET
+@Path("/{id}/asientosDisponibles")
+@Produces(MediaType.APPLICATION_JSON)
+public Response obtenerAsientosDisponibles(@PathParam("id") int id) {
+    try {
+        List<Integer> asientos = viajeDAO.obtenerAsientosDisponibles(id);
+        return addCorsHeaders(Response.ok(asientos)).build();
+    } catch (Exception e) {
+        e.printStackTrace();
+        return addCorsHeaders(Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                .entity("{\"error\":\"No se pudo obtener los asientos disponibles\"}")
+                .type(MediaType.APPLICATION_JSON)).build();
+    }
+}
+
 
     // =======================
     // Crear viaje con JSON
