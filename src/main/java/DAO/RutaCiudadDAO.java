@@ -57,6 +57,52 @@ public List<RutaCiudad> listarRutas() {
     }
     return rutas;
 }
+// Listar rutas con ciudades y países
+public List<RutaCiudad> listarRutasConPaises() {
+    List<RutaCiudad> rutas = new ArrayList<>();
+    String sql = "SELECT " +
+                 "r.id AS id_ruta, " +
+                 "r.id_ciudad_origen, " +
+                 "co.nombre AS ciudad_origen, " +
+                 "po.id AS id_pais_origen, " +
+                 "po.nombre AS pais_origen, " +
+                 "r.id_ciudad_destino, " +
+                 "cd.nombre AS ciudad_destino, " +
+                 "pd.id AS id_pais_destino, " +
+                 "pd.nombre AS pais_destino " +
+                 "FROM ruta_ciudad r " +
+                 "JOIN ciudades co ON r.id_ciudad_origen = co.id " +
+                 "JOIN paises po ON co.id_pais = po.id " +
+                 "JOIN ciudades cd ON r.id_ciudad_destino = cd.id " +
+                 "JOIN paises pd ON cd.id_pais = pd.id " +
+                 "ORDER BY r.id ASC";
+
+    try (Connection conn = Conexion.getConnection();
+         Statement stmt = conn.createStatement();
+         ResultSet rs = stmt.executeQuery(sql)) {
+
+        while (rs.next()) {
+            RutaCiudad ruta = new RutaCiudad();
+            ruta.setId(rs.getInt("id_ruta"));
+            ruta.setId_ciudad_origen(rs.getInt("id_ciudad_origen"));
+            ruta.setCiudad_origen(rs.getString("ciudad_origen"));
+            ruta.setId_pais_origen(rs.getInt("id_pais_origen"));
+            ruta.setPais_origen(rs.getString("pais_origen"));
+
+            ruta.setId_ciudad_destino(rs.getInt("id_ciudad_destino"));
+            ruta.setCiudad_destino(rs.getString("ciudad_destino"));
+            ruta.setId_pais_destino(rs.getInt("id_pais_destino"));
+            ruta.setPais_destino(rs.getString("pais_destino"));
+
+            rutas.add(ruta);
+        }
+
+    } catch (SQLException e) {
+        e.printStackTrace();
+    }
+    return rutas;
+}
+
 
 
 }

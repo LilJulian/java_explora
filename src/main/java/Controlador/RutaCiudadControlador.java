@@ -16,17 +16,26 @@ public class RutaCiudadControlador {
     // 🔹 Método auxiliar para agregar CORS en todas las respuestas
     private Response.ResponseBuilder addCorsHeaders(Response.ResponseBuilder response) {
         return response
-                
+                // 👈 lo agregué para permitir consumo desde el front
                 .header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
                 .header("Access-Control-Allow-Headers", "Content-Type, Authorization")
                 .header("Access-Control-Allow-Credentials", "true");
     }
 
-    // 🔹 Listar todas las rutas
+    // 🔹 Listar todas las rutas (solo ciudades)
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public Response listarRutas() {
         List<RutaCiudad> rutas = rutaDAO.listarRutas();
+        return addCorsHeaders(Response.ok(rutas)).build();
+    }
+
+    // 🔹 Listar rutas con ciudades y países
+    @GET
+    @Path("/detalle")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response listarRutasConPaises() {
+        List<RutaCiudad> rutas = rutaDAO.listarRutasConPaises();
         return addCorsHeaders(Response.ok(rutas)).build();
     }
 
@@ -35,7 +44,7 @@ public class RutaCiudadControlador {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Response insertarRuta(RutaCiudad ruta) {
-        if (ruta.getId_ciudad_origen()== ruta.getId_ciudad_destino()) {
+        if (ruta.getId_ciudad_origen() == ruta.getId_ciudad_destino()) {
             return addCorsHeaders(Response.status(Response.Status.BAD_REQUEST)
                     .entity("{\"error\":\"La ciudad de origen y destino no pueden ser la misma\"}")
                     .type(MediaType.APPLICATION_JSON)).build();
