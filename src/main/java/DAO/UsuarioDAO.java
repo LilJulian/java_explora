@@ -112,6 +112,21 @@ public Usuarios obtenerUsuarioPorId(int id) {
     }
     return usuario;
 }
+public boolean existeCorreo(String correo, int idUsuario) throws SQLException {
+    String sql = "SELECT COUNT(*) FROM usuarios WHERE correo = ? AND id <> ?";
+        try (Connection conn = Conexion.getConnection();
+         PreparedStatement stmt = conn.prepareStatement(sql)) {
+        stmt.setString(1, correo);
+        stmt.setInt(2, idUsuario);
+        try (ResultSet rs = stmt.executeQuery()) {
+            if (rs.next()) {
+                return rs.getInt(1) > 0;
+            }
+        }
+    }
+    return false;
+}
+
 
 
 
@@ -148,32 +163,27 @@ public Usuarios obtenerUsuarioPorId(int id) {
 
 
    // Actualizar usuario
-public int actualizar(Usuarios usuario) {
-    String sql = "UPDATE usuarios SET nombre=?, correo=?, telefono=?, contrasena=?, id_rol=? WHERE id=?";
+   public int actualizar(Usuarios usuario) {
+        String sql = "UPDATE usuarios SET nombre=?, correo=?, telefono=?, contrasena=?, id_rol=? WHERE id=?";
+        try (Connection conn = Conexion.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-    try (Connection conn = Conexion.getConnection();
-         PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, usuario.getNombre());
+            stmt.setString(2, usuario.getCorreo());
+            stmt.setString(3, usuario.getTelefono());
+            stmt.setString(4, usuario.getContrasena());
+            stmt.setInt(5, usuario.getRol());
+            stmt.setInt(6, usuario.getId());
 
-        stmt.setString(1, usuario.getNombre());
-        stmt.setString(2, usuario.getCorreo());
-        stmt.setString(3, usuario.getTelefono());
-        stmt.setString(4, usuario.getContrasena());
-        stmt.setInt(5, usuario.getRol());
-        stmt.setInt(6, usuario.getId());
+            int filas = stmt.executeUpdate();
+            return filas > 0 ? 1 : 0;
 
-        int filas = stmt.executeUpdate();
-
-        if (filas > 0) {
-            return 1; // ✅ Se actualizó correctamente
-        } else {
-            return 0; // ⚠️ No se encontró el usuario o no hubo cambios
+        } catch (Exception e) {
+            e.printStackTrace();
+            return -99;
         }
-
-    } catch (Exception e) {
-        e.printStackTrace();
-        return -2; // ❌ Error en la operación
     }
-}
+
 
 
 

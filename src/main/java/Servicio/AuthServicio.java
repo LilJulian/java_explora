@@ -15,37 +15,40 @@ public class AuthServicio {
 
     /**
      * Autentica un usuario con correo y contraseña.
-     * @return Mapa con access_token y refresh_token si las credenciales son válidas; null si no lo son.
+     *
+     * @return Mapa con access_token y refresh_token si las credenciales son
+     * válidas; null si no lo son.
      */
     public Map<String, Object> login(String correo, String contrasena) {
-    Usuarios u = usuarioDAO.buscarPorCorreo(correo);
-    if (u == null) return null;
+        Usuarios u = usuarioDAO.buscarPorCorreo(correo);
+        if (u == null) {
+            return null;
+        }
 
-    // Verificar contraseña con BCrypt
-    if (!BCrypt.checkpw(contrasena, u.getContrasena())) return null;
-    System.out.println("ID usuario: " + u.getId());
+        // Verificar contraseña con BCrypt
+        if (!BCrypt.checkpw(contrasena, u.getContrasena())) {
+            return null;
+        }
+        System.out.println("ID usuario: " + u.getId());
 
+        // Obtener permisos del usuario
+        List<String> permisos = usuarioDAO.obtenerPermisosPorUsuario(u.getId());
+        System.out.println("Permisos obtenidos: " + permisos);
 
+        // Generar ambos tokens (access incluye permisos)
+        String accessToken = JwtUtil.generarAccessToken(u, permisos);   // válido 2h
+        String refreshToken = JwtUtil.generarRefreshToken(u);           // válido 7d
 
-    // Obtener permisos del usuario
-    List<String> permisos = usuarioDAO.obtenerPermisosPorUsuario(u.getId());
-    System.out.println("Permisos obtenidos: " + permisos);
+        // Aquí agregamos más información para que el front pueda usarla
+        Map<String, Object> respuesta = new HashMap<>();
+        respuesta.put("access_token", accessToken);
+        respuesta.put("refresh_token", refreshToken);
+        respuesta.put("id_usuario", u.getId());
+        respuesta.put("id_rol", u.getRol()); // 👈 importante para redirección
+        respuesta.put("correo", u.getCorreo());
 
-    // Generar ambos tokens (access incluye permisos)
-    String accessToken = JwtUtil.generarAccessToken(u, permisos);   // válido 2h
-    String refreshToken = JwtUtil.generarRefreshToken(u);           // válido 7d
-
-    // Aquí agregamos más información para que el front pueda usarla
-    Map<String, Object> respuesta = new HashMap<>();
-    respuesta.put("access_token", accessToken);
-    respuesta.put("refresh_token", refreshToken);
-    respuesta.put("id_usuario", u.getId());
-    respuesta.put("id_rol", u.getRol()); // 👈 importante para redirección
-    respuesta.put("correo", u.getCorreo());
-
-    return respuesta;
-}
-
+        return respuesta;
+    }
 
     /**
      * Genera un nuevo access token a partir de un refresh token válido.
@@ -66,52 +69,72 @@ public class AuthServicio {
      * Registrar usuario (encripta contraseña antes de insertar).
      */
     public boolean registrarUsuario(Usuarios usuario) {
+        // Verificar si el correo ya existe
+        Usuarios existente = usuarioDAO.buscarPorCorreo(usuario.getCorreo());
+        if (existente != null) {
+            // Ya existe un usuario con ese correo, NO crear
+            return false;
+        }
+
+        // Encriptar contraseña y guardar
         String hashed = BCrypt.hashpw(usuario.getContrasena(), BCrypt.gensalt(12));
         usuario.setContrasena(hashed);
         return usuarioDAO.insertar(usuario);
     }
-    
-public int actualizarUsuario(Usuarios usuario) {
-    // 1️⃣ Buscar el usuario actual en BD
-    Usuarios actual = usuarioDAO.obtenerUsuarioPorId(usuario.getId());
-    if (actual == null) {
-        return -1; // Usuario no existe
+
+    public boolean existeCorreo(String correo) {
+        return usuarioDAO.buscarPorCorreo(correo) != null;
     }
 
-    // 2️⃣ Si no enviaron un campo, mantenemos el valor actual
-    if (usuario.getNombre() == null || usuario.getNombre().isEmpty()) {
-        usuario.setNombre(actual.getNombre());
+    public int actualizarUsuario(Usuarios usuario) {
+        // 1️⃣ Buscar el usuario actual
+        Usuarios actual = usuarioDAO.obtenerUsuarioPorId(usuario.getId());
+        if (actual == null) {
+            return -1; // Usuario no existe
+        }
+
+        // 2️⃣ Verificar si el correo ya está en uso por otro
+        if (usuario.getCorreo() != null && !usuario.getCorreo().isEmpty()) {
+            Usuarios otro = usuarioDAO.buscarPorCorreo(usuario.getCorreo());
+            if (otro != null && otro.getId() != usuario.getId()) {
+                return -2; // Correo ya usado por otro
+            }
+        }
+
+        // 3️⃣ Mantener valores si no se enviaron
+        if (usuario.getNombre() == null || usuario.getNombre().isEmpty()) {
+            usuario.setNombre(actual.getNombre());
+        }
+        // Normalizar correo en AuthServicio.actualizarUsuario
+        if (usuario.getCorreo() != null) {
+            usuario.setCorreo(usuario.getCorreo().trim());
+        }
+
+        if (usuario.getTelefono() == null || usuario.getTelefono().isEmpty()) {
+            usuario.setTelefono(actual.getTelefono());
+        }
+        if (usuario.getRol() == 0) {
+            usuario.setRol(actual.getRol());
+        }
+
+        // 4️⃣ Contraseña
+        if (usuario.getContrasena() == null || usuario.getContrasena().isEmpty()) {
+            usuario.setContrasena(actual.getContrasena());
+        } else {
+            String hashed = BCrypt.hashpw(usuario.getContrasena(), BCrypt.gensalt(12));
+            usuario.setContrasena(hashed);
+        }
+        System.out.println("Correo recibido: '" + usuario.getCorreo() + "'");
+System.out.println("Correo actual: '" + actual.getCorreo() + "'");
+
+
+        // 5️⃣ Actualizar
+        return usuarioDAO.actualizar(usuario);
     }
-    if (usuario.getCorreo() == null || usuario.getCorreo().isEmpty()) {
-        usuario.setCorreo(actual.getCorreo());
-    }
-    if (usuario.getTelefono() == null || usuario.getTelefono().isEmpty()) {
-        usuario.setTelefono(actual.getTelefono());
-    }
-    if (usuario.getRol() == 0) { // si no viene rol
-        usuario.setRol(actual.getRol());
-    }
-
-    // 3️⃣ Contraseña: si no mandan nueva, dejamos la actual
-    if (usuario.getContrasena() == null || usuario.getContrasena().isEmpty()) {
-        usuario.setContrasena(actual.getContrasena());
-    } else {
-        // Si viene una nueva, la encriptamos
-        String hashed = BCrypt.hashpw(usuario.getContrasena(), BCrypt.gensalt(12));
-        usuario.setContrasena(hashed);
-    }
-
-    // 4️⃣ Llamamos al DAO
-    return usuarioDAO.actualizar(usuario);
-}
-
-
-
-
 
     /**
-     * ✅ Valida un Access Token y devuelve los claims.
-     * Sirve para verificar si un usuario sigue autenticado.
+     * ✅ Valida un Access Token y devuelve los claims. Sirve para verificar si
+     * un usuario sigue autenticado.
      */
     public Claims validarAccessToken(String token) {
         return JwtUtil.validarYObtenerClaims(token);
